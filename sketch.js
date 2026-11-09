@@ -4,11 +4,15 @@ let maxProduzione = 0;
 let territori = [];
 let selectedId;
 
-let margin = 0;
+let margin = 20;
 let gutter = 4;
 
+
+
 async function setup(){
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight + 50);
+
+
 
   data = await loadTable("assets/Coltivazioni-Superfici-e-produzione-provincie.csv", ",", "header");
 
@@ -31,40 +35,70 @@ async function setup(){
 }
 
 function draw(){
-  background(52);
+  background('#EBD2AD');
 
+  let numeroColonne = 10;
+  let dimRiga = 0;
   let numberOfGutters = data.getRowCount() - 1;
 
   let barsWidth = width - 2 * margin - numberOfGutters * gutter;
 
   let xPos = margin;
+  let yPos = margin;
   let label = "";
   noStroke();
 
+//   let colorScale = {
+//   10: '#E494FE',
+//   20: '#DC77FE',
+//   30: '#BE11D1',
+//   40: '#B03AB0',
+//   50: '#970C97',
+//   60: '#89118F',
+//   70: '#721684',
+//   80: '#710971',
+//   90: '#590859',
+//   100: '#3A0A3A',
+// }
+
   let colorScale = {
-  10: '#E494FE',
-  20: '#DC77FE',
-  30: '#BE11D1',
-  40: '#B03AB0',
-  50: '#970C97',
-  60: '#89118F',
-  70: '#721684',
-  80: '#710971',
-  90: '#590859',
-  100: '#3A0A3A',
+  10:'#8d257c',
+  20: '#6f4687',
+  30: '#725f8b',
+  40: '#75778d',
+  50: '#778d8f',
+  60: '#79a490',
+  70: '#7abb90',
+  80: '#7cd28f',
+  90: '#7fe88d',
+  100: '#82ff8a',
 }
+
+//   let colorScale = {
+//   10:'#6b2983',
+//   20: '#46e0e0',
+//   30: '#725f8b',
+//   40: '#c52a52',
+//   50: '#778d8f',
+//   60: '#79a490',
+//   70: '#93003a',
+//   80: '#7cd28f',
+//   90: '#ffcab9',
+//   100: '#82ff8a',
+// }
 
   for(let rowNumber = 0; rowNumber < data.getRowCount(); rowNumber++){
     let currentSuperficie = data.getNum(rowNumber, "Superficie totale - ettari");
     let currentProduzione = data.getNum(rowNumber, "Produzione totale - quintali");
     let territorio = data.getString(rowNumber, "Territorio");
     
-    let scaledProduzione = map(currentProduzione, 0, maxProduzione, 0, barsWidth);
+    let scaledProduzione = map(currentProduzione, 0, maxProduzione / 4, 0, barsWidth);
     let scaledSuperficie = map(currentSuperficie, 0, maxSuperficie, 0, height - 2 * margin);
 
-    // fill(255);
-    //rect(xPos, margin, scaledSuperficie, scaledSuperficie);
-    // fill(255, 0, 0);
+    if(scaledProduzione > dimRiga) {
+      dimRiga = scaledProduzione + gutter;
+    }
+
     let valoreSuperficie = ceil(map(currentSuperficie, 0, maxSuperficie, 0, 100));
     console.log(valoreSuperficie);
 
@@ -90,12 +124,26 @@ function draw(){
       fill(colorScale[100])
     }
     // fill(100, 60, 160);
-        rect(xPos, margin, scaledProduzione, scaledProduzione);
-
-
-    // mioGlifo(xPos, margin, scaledProduzione, scaledSuperficie);
-    mioGlifo(xPos, margin, scaledProduzione);
+    // for(let g = 0; g <= data.getRowCount(); g++){
+    //   mioGlifo(xPos+)
+    // }
+    if(xPos + scaledProduzione <= (windowWidth - margin)) {
+      // rect(xPos, yPos, scaledProduzione, scaledProduzione);
+      mioGlifo(xPos, yPos, scaledProduzione);
       xPos += scaledProduzione + gutter;
+
+      if(xPos >= windowWidth){
+        xPos = margin;
+        yPos = yPos + dimRiga;
+      }
+    } else {
+      xPos = margin; 
+      yPos = yPos + dimRiga;           
+      // rect(xPos, yPos, scaledProduzione, scaledProduzione);
+      mioGlifo(xPos, yPos, scaledProduzione);
+
+      xPos += scaledProduzione + gutter;    
+    }
   }
 }
 
@@ -126,19 +174,19 @@ function mioGlifo(x, y, size){
   let rx1 = size
   let ry1 = size * 2/8
 
- fill(255);
+//  fill(255);
   circle(x1, y1, sizeCerchio);
-   fill(255);
+  //  fill(255);
   circle(x2, y2, sizeCerchio);
-     fill(255);
+    //  fill(255);
   circle(x3, y3, sizeCerchio);
-   fill(255);
+  //  fill(255);
   circle(x4, y4, sizeCerchio);
-   fill(255);
+  //  fill(255);
   circle(x5, y5, sizeCerchio);
-     fill(255);
+    //  fill(255);
   circle(x6, y6, sizeCerchio);
-
+fill('#4D382D')
   rect(0, 0, size, size/4);
   pop();
 
