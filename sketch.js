@@ -3,14 +3,18 @@ let maxSuperficie = 0;
 let maxProduzione = 0;
 let territori = [];
 let selectedId;
+let selectedProduzione;
+let selectedSuperficie;
 
 let margin = 20;
 let gutter = 4;
 
+let altezzaLegenda = 250;
+
 
 
 async function setup(){
-  createCanvas(windowWidth, windowHeight + 50);
+  createCanvas(windowWidth, windowHeight + altezzaLegenda + 50);
 
 
 
@@ -37,6 +41,39 @@ async function setup(){
 function draw(){
   background('#EBD2AD');
 
+  //scrivo legenda
+  fill(0);
+  textSize(48);
+  text("Coltivazioni di uva da vino in Italia", 20, 60);
+  textSize(24);
+  text("Superfici e produzioni suddivise in provincie", 20, 100);
+  textSize(18);
+  text("Produzione totale (quintali): grandezza del glifo", 20, 140);
+  textSize(18);
+  text("Superficie totale (ettari): scala colore", 20, 160);
+
+  //disegno rettangoli scala colore legenda
+  fill('#8d257c')
+  rect(20, 180, 20);
+    fill('#6f4687')
+  rect(40, 180, 20);
+      fill('#725f8b')
+  rect(60, 180, 20);
+      fill('#75778d')
+  rect(80, 180, 20);
+      fill('#778d8f')
+  rect(100, 180, 20);
+      fill('#79a490')
+  rect(120, 180, 20);
+      fill('#7abb90')
+  rect(140, 180, 20);
+      fill('#7cd28f')
+  rect(160, 180, 20);
+      fill('#7fe88d')
+  rect(180, 180, 20);
+      fill('#82ff8a')
+  rect(200, 180, 20);
+
   let numeroColonne = 10;
   let dimRiga = 0;
   let numberOfGutters = data.getRowCount() - 1;
@@ -44,7 +81,7 @@ function draw(){
   let barsWidth = width - 2 * margin - numberOfGutters * gutter;
 
   let xPos = margin;
-  let yPos = margin;
+  let yPos = margin + altezzaLegenda;
   let label = "";
   noStroke();
 
@@ -74,19 +111,6 @@ function draw(){
   100: '#82ff8a',
 }
 
-//   let colorScale = {
-//   10:'#6b2983',
-//   20: '#46e0e0',
-//   30: '#725f8b',
-//   40: '#c52a52',
-//   50: '#778d8f',
-//   60: '#79a490',
-//   70: '#93003a',
-//   80: '#7cd28f',
-//   90: '#ffcab9',
-//   100: '#82ff8a',
-// }
-
   for(let rowNumber = 0; rowNumber < data.getRowCount(); rowNumber++){
     let currentSuperficie = data.getNum(rowNumber, "Superficie totale - ettari");
     let currentProduzione = data.getNum(rowNumber, "Produzione totale - quintali");
@@ -100,7 +124,7 @@ function draw(){
     }
 
     let valoreSuperficie = ceil(map(currentSuperficie, 0, maxSuperficie, 0, 100));
-    console.log(valoreSuperficie);
+    // console.log(valoreSuperficie);
 
     if(valoreSuperficie<10){
       fill(colorScale[10])
@@ -123,15 +147,25 @@ function draw(){
     }else{
       fill(colorScale[100])
     }
-    // fill(100, 60, 160);
-    // for(let g = 0; g <= data.getRowCount(); g++){
-    //   mioGlifo(xPos+)
-    // }
-    if(xPos + scaledProduzione <= (windowWidth - margin)) {
-      // rect(xPos, yPos, scaledProduzione, scaledProduzione);
-      mioGlifo(xPos, yPos, scaledProduzione);
-      xPos += scaledProduzione + gutter;
 
+    // disegno il mio glifo e calcolo la posizione successiva
+    if(xPos + scaledProduzione <= (windowWidth - margin)) {
+      mioGlifo(xPos, yPos, scaledProduzione);
+
+      if(
+        mouseX >= xPos &&
+        mouseX <= xPos + scaledProduzione &&
+        mouseY >= yPos &&
+        mouseY <= yPos + scaledProduzione
+      ){
+        label = territorio
+        selectedId = data.getString(rowNumber, "Territorio")
+        selectedProduzione = data.getString(rowNumber, "Produzione totale - quintali")
+        selectedSuperficie = data.getString(rowNumber, "Superficie totale - ettari")
+      }
+
+      // calcolo la posizione successiva
+      xPos += scaledProduzione + gutter;
       if(xPos >= windowWidth){
         xPos = margin;
         yPos = yPos + dimRiga;
@@ -139,55 +173,61 @@ function draw(){
     } else {
       xPos = margin; 
       yPos = yPos + dimRiga;           
-      // rect(xPos, yPos, scaledProduzione, scaledProduzione);
       mioGlifo(xPos, yPos, scaledProduzione);
+      if(
+          mouseX >= xPos &&
+          mouseX <= xPos + scaledProduzione &&
+          mouseY >= yPos &&
+          mouseY <= yPos + scaledProduzione
+        ){
+          label = territorio
+          selectedId = data.getString(rowNumber, "Territorio")
+        }
 
+      // calcolo la posizione successiva
       xPos += scaledProduzione + gutter;    
     }
   }
+  if (label !=""){
+    fill(0);
+    textSize(14);
+    let labelCompleta = label + "\nProduzione totale (quintali): " + selectedProduzione + "\nSuperficie totale (ettari):" + selectedSuperficie;
+    text(labelCompleta, mouseX + 8, mouseY + 16);
+  }
 }
 
+// disegno il glifo singolo
 function mioGlifo(x, y, size){
   push();
   translate(x, y);
-  // rectMode(CENTER);
-
-  //fill(0);
-  //rettangolo griglia base
-  //rect(x, y, size);
 
   let sizeCerchio = size/4
 
   let x1 = size/4
   let y1 = size * 3/8
-    let x2 = size/2
+  let x2 = size/2
   let y2 = size * 3/8
-    let x3 = size * 6/8
+  let x3 = size * 6/8
   let y3 = size * 3/8
-    let x4 = size * 3/8
+  let x4 = size * 3/8
   let y4 = size* 5/8
   let x5 = size * 5/8
   let y5 = size * 5/8
   let x6 = size/2
   let y6 = size *7/8
 
-  let rx1 = size
-  let ry1 = size * 2/8
+  let rx1 = size/2
+  let ry1 = size * 3/16
 
-//  fill(255);
   circle(x1, y1, sizeCerchio);
-  //  fill(255);
   circle(x2, y2, sizeCerchio);
-    //  fill(255);
   circle(x3, y3, sizeCerchio);
-  //  fill(255);
   circle(x4, y4, sizeCerchio);
-  //  fill(255);
   circle(x5, y5, sizeCerchio);
-    //  fill(255);
   circle(x6, y6, sizeCerchio);
-fill('#4D382D')
-  rect(0, 0, size, size/4);
+  fill('#4D382D')
+  rect(0, 0, size, size/8, 20);
+  rectMode(CENTER)
+  rect(rx1, ry1, size/16, size/8)
   pop();
-
 }
